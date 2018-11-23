@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <!-- namespace跟的是接口的全限类名 -->
+<mapper namespace="com.baizhi.pai.dao.AuctionDao">
+	<!-- 管理员查询全部拍卖品 -->
+	<!-- <select id="getAll" resultType="com.baizhi.pai.entity.Auction">
+		select * from auction
+	</select> -->
+	<!-- //删除单个拍卖品 -->
+	<delete id="delete">
+		delete from auction where auction_id=#{auction_id}
+	</delete>
+
+	<!-- //查询单个拍卖品 -->
+	<select id="selectOne" resultType="com.baizhi.pai.entity.Auction">
+		select * from auction where
+		auction_id=#{auction_id}
+	</select>
+	<!-- //修改单个拍卖品 -->
+	<update id="update">
+		update auction set auction_name=#{auction_name},
+		auction_start_price=#{auction_start_price},
+		auction_upset=#{auction_upset},auction_start_time=#{auction_start_time},auction_end_time=#{auction_end_time},
+		auction_pic=#{auction_pic},auction_desc=#{auction_desc} where
+		auction_id=#{auction_id}
+	</update>
+	<!-- //条件查询 -->
+	<select id="getAll" resultType="com.baizhi.pai.entity.Auction">
+		select * from auction
+		<where>
+			<if test="auction_name!=null ">
+				<!-- 表示模糊查询 -->
+				auction_name like '%' ||#{auction_name}|| '%'
+			</if>
+			<if test="auction_desc!=null ">
+				and auction_desc like '%'||#{ auction_desc}||'%'
+			</if>
+			<if test="auction_start_time!=null">
+				and auction_start_time<![CDATA[>=]]> #{auction_start_time}	
+			</if>
+			<if test="auction_end_time!=null">
+				and auction_end_time<![CDATA[<=]]> #{auction_end_time}	
+			</if>
+			<if test="auction_start_price!=null and auction_start_price!=0.0">
+				and auction_start_price =#{auction_start_price}
+			</if>
+		</where>
+	</select>
+	
+	<!-- //添加拍卖品 -->
+	<insert id="insert">
+		insert into auction
+		values(au.nextval,#{auction_name},#{auction_start_price},#{auction_upset},#{auction_start_time},#{auction_end_time},#{auction_pic},#{auction_desc})
+	</insert>
+
+
+<!-- <resultMap type="com.baizhi.pai.entity.Auction" id="Map">
+	<id column="auction_id" property="auction_id" />
+	<result column="auction_name" property="auction_name" />
+	<result column="auction_start_price" property="auction_start_price" />
+	<result column="auction_upset" property="auction_upset" />
+	<result column="auction_start_time" property="auction_start_time" />
+	<result column="auction_end_time" property="auction_end_time" />
+	<result column="auction_pic" property="auction_pic" />
+	<result column="auction_desc" property="auction_desc" />
+	<collection property="list" ofType="com.baizhi.pai.entity.Auction_record">
+		<id column="id" property="id" />
+		<result column="uid" property="user_id" />
+		<result column="aid" property="auction_id" />
+		<result column="auction_time" property="auction_time" />
+		<result column="auction_price" property="auction_price" />
+
+		<association property="user" javaType="com.baizhi.pai.entity.User">
+			<id column="user_id" property="user_id" />
+			<result column="user_name" property="user_name" />
+		</association>
+	</collection>
+</resultMap> -->
+
+
+</mapper>

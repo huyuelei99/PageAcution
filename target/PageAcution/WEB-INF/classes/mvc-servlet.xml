@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		
+		xmlns:mvc="http://www.springframework.org/schema/mvc"
+		xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+			http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+			">
+
+
+	<!-- 1.把方法映射成地址 2.把方法返回值转换成要请求的地址 -->
+	<!-- 1把controller中的方法写成一个地址读取controller的注解 -->
+	<context:component-scan base-package="com.baizhi.pai.controller"></context:component-scan>
+
+	<!-- 2视图解析器：把逻辑视图名解析成物理视图，以转发的方式请求 -->
+	<!-- 通过bean标签配置视图解析器 -->
+	<!-- 视图解析器，把逻辑视图名前面加一个前缀，后面加一个后缀，形成物理视图 -->
+		<bean
+			class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+			<property name="prefix" value="/"></property>
+			<property name="suffix" value=".jsp"></property>
+		</bean>
+	
+		<!-- 通过mvc标签加载mvc相关的注解 并加载日期类型转换器通过conversion-service属性 -->
+		<mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+	
+	
+		<!-- 4   定义类型转换器 包名后面还要跟上该类名 -->
+		<bean class="com.baizhi.pai.time.MyDate" id="MyDateScope">
+		</bean>
+		
+		<!-- 把自己定义类型转换器注册到类型转换器工厂中 -->
+		<bean
+			class="org.springframework.context.support.ConversionServiceFactoryBean"
+			id="conversionService">
+			<property name="converters">
+				<set>
+					<ref bean="MyDateScope" />
+				</set>
+			</property>
+		</bean>
+		
+	
+		<!-- 6 图片验证码 -->
+		<bean class="com.google.code.kaptcha.util.Config" id="config">
+			<constructor-arg>
+				<props>
+					<prop key="kaptcha.textproducer.char.length">3</prop>
+				</props>
+			</constructor-arg>
+		</bean>
+	
+		<bean class="com.google.code.kaptcha.impl.DefaultKaptcha">
+			<property name="config" ref="config"></property>
+		</bean>
+		
+		
+		
+		<!--6 //文件上传解析器 -->
+		
+		<bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver"></bean>
+		
+		<!--  7  客户拦截器若没有登陆不允许访问  -->
+		<mvc:interceptors>
+			<mvc:interceptor>
+				<!-- 表示所有的请求都要经过拦截器 -->
+				<mvc:mapping path="/**"/>
+				
+				<!-- //表示放行的路径 -->
+				<mvc:exclude-mapping path="/getUserOne.do"/>
+				<mvc:exclude-mapping path="/regist.do"/>
+				<mvc:exclude-mapping path="/kapp.do"/>
+				
+				<bean class="com.baizhi.pai.time.InterCep"></bean>
+			</mvc:interceptor>
+		</mvc:interceptors>
+</beans>
+
+
+
+
+
+
+

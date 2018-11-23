@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+			">
+			<!-- 加载service层的注解 -->
+		<context:component-scan base-package="com.baizhi.pai.service"></context:component-scan>	
+	<!-- 	1	加载jdbc.properties配置文件 -->
+		<context:property-placeholder location="classpath:jdbc.properties"/>
+		
+	<!-- 	2	创建数据源对象  	 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+			<property name="driverClassName" value="${jdbc.drive}"></property>
+			<property name="url" value="${jdbc.url}"></property>
+			<property name="username" value="${jdbc.username}"></property>
+			<property name="password" value="${jdbc.password}"></property>
+		</bean>
+		
+	<!-- 	3  	创建SqlSessionFactory工厂类对象 -->
+		<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+			<!-- 需要依赖依据数据源 创建工厂类对象 -->
+			<property name="dataSource" ref="dataSource"></property>
+			<!-- 	加载映射文件 -->
+			<property name="mapperLocations">
+				<list>
+					<value>classpath:Mapper/*Mapper.xml</value>
+				</list>
+			</property>
+		</bean>
+		
+	<!-- 	 4 	创建dao代理对象 -->
+		<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+			<!-- 创建出dao代理对象名字为dao接口名字首字母小写 -->
+			<property name="basePackage" value="com.baizhi.pai.dao"></property>
+		</bean>
+		
+	<!-- 	5   spring声明式的事务处理 -->
+		<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="txManager">
+			<property name="dataSource" ref="dataSource"></property>
+		</bean>
+		
+		<tx:advice id="txAdvice" transaction-manager="txManager">
+			<tx:attributes>
+				<tx:method name="get*" read-only="true"/>
+				<tx:method name="set*" read-only="true"/>
+				
+				<tx:method name="*" propagation="REQUIRED"/>
+			</tx:attributes>
+		</tx:advice>
+		
+		<aop:config>
+			<aop:pointcut expression="execution(* com.baizhi.pai.service.*.*(..))" id="pointcut"/>
+			<aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut"/>
+		</aop:config>
+			
+	
+		
+</beans>

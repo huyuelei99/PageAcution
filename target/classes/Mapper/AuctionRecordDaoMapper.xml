@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <!-- namespace跟的是接口的全限类名 -->
+<mapper namespace="com.baizhi.pai.dao.Auction_recordDao">
+	
+
+
+	<select id="getAll" resultType="com.baizhi.pai.entity.AuctionDTO">
+		select a.user_name ,b.auction_price,b.auction_time
+		from auction_user a,auction_record b
+		where a.user_id=b.user_id and auction_id=#{auction_id}
+		order by auction_price desc 
+	</select>
+ 	
+ 	<insert id="insert">
+ 		insert into auction_record values(record.nextval,#{user_id},#{auction_id},sysdate,#{auction_price})
+ 	</insert>
+ 	
+ 	<!-- 要删除竞拍品先删除竞拍品得从表竞拍记录 -->
+ 	<delete id="delete">
+ 		delete from auction_record where auction_id=#{auction_id}
+ 	</delete>
+	
+	<select id="selectOne" resultType="com.baizhi.pai.entity.Auction_record">
+		select * from auction_record where auction_id=#{auction_id}
+	</select>
+	
+</mapper>
+
